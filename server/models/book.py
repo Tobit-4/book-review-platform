@@ -16,7 +16,7 @@ class Book(db.Model, SerializerMixin):
     serialize_rules = (
         '-reviews.book',
         '-genre_associations.book',
-        ('genres', lambda genres: [g.to_dict(rules=('-books',)) for g in genres]),
+        'genres.books',
     )
 
     # Relationships

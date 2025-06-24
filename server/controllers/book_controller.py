@@ -2,14 +2,20 @@ from flask import request, make_response, jsonify
 from flask_restful import Resource
 from models import Book, Review, db, BookGenre, Genre
 from sqlalchemy import func
+from flask_jwt_extended import jwt_required
 
 class BookList(Resource):
     def get(self):
         books = Book.query.all()
         return [ b.to_dict(rules=('-genre_associations',)) for b in books ]
 
+    @jwt_required()
     def post(self):
-        data = request.get_data()
+        data = request.get_json()
+
+        if not data.get('title') or not data.get('author'):
+            return {'error': 'Title and author are required'}, 400
+        
         book = Book(
             title = data['title'],
             author = data['author'],
@@ -21,8 +27,11 @@ class BookList(Resource):
         db.session.add(book)
 
         if 'genres' in data:
-            book.genres = data['genres']
-
+            try:
+                book.genres = data['genres'] 
+            except Exception as e:
+                db.session.rollback()
+                return {'error': str(e)}, 400
         db.session.commit()
         return book.to_dict(), 201
     
