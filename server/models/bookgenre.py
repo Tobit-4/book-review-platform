@@ -1,3 +1,6 @@
+from sqlalchemy_serializer import SerializerMixin
+from config import db
+
 class BookGenre(db.Model, SerializerMixin):
     __tablename__ = 'book_genres'
 

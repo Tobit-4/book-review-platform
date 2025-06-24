@@ -9,13 +9,19 @@ class GenreBooks(Resource):
             return {"error": "Genre not found"}, 404
         return {
             "genre": genre.name,
-            "books": [b.to_dict() for b in genre.books]
+            "books": [b.to_dict(rules=(
+                '-genres',
+                '-reviews',
+                '-genre_associations')) for b in genre.books]
         }, 200
     
 class GenreList(Resource):
     def get(self):
         genres = Genre.query.all()
-        return [g.to_dict() for g in genres]
+        return [ g.to_dict(rules=(
+            '-books',
+            '-book_associations')) 
+            for g in genres]
     
     def post(self):
         data = request.get_json()
@@ -24,14 +30,3 @@ class GenreList(Resource):
         db.session.commit()
         return genre.to_dict(), 201
     
-class GenreApi(Resource):
-    def get(self, genre_id):
-        genre = Genre.query.get_or_404(genre_id)
-        return {
-            'genre': genre.to_dict(),
-            'books': [b.to_dict(rules=(
-                '-genres',
-                '-reviews',
-                {'genres': {'only': ('id', 'name')}}
-            )) for b in genre.books]
-        }

@@ -6,7 +6,7 @@ from sqlalchemy import func
 class BookList(Resource):
     def get(self):
         books = Book.query.all()
-        return [ b.to_dict(rules=('-genre_associations')) for b in books ]
+        return [ b.to_dict(rules=('-genre_associations',)) for b in books ]
 
     def post(self):
         data = request.get_data()
@@ -19,9 +19,10 @@ class BookList(Resource):
         )
 
         db.session.add(book)
+
         if 'genres' in data:
-            for genre_id in data['genres']:
-                book.genres.append(genre_id)
+            book.genres = data['genres']
+
         db.session.commit()
         return book.to_dict(), 201
     
@@ -35,7 +36,11 @@ class BookDetail(Resource):
 
         return {
             'book':book_by_id.to_dict(),
-            'reviews':[r.to_dict(rules=('-books','-user.reviews')) for r in reviews],
-            'genres':[g.to_dict(rules=('-books',)) for g in book_by_id.genres]
+            'reviews':[r.to_dict(rules=(
+                '-book',
+                '-user.reviews',
+                '-user.password_hash'
+            )) for r in reviews],
+            'genres':[g.to_dict(rules=('-books', '-book_associations')) for g in book_by_id.genres]
         }, 200
 
