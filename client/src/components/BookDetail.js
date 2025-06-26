@@ -10,26 +10,28 @@ function BookDetail({ user }) {
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(true)
 
-  const fetchBook = () => {
-    setLoading(true)
-    fetch(`http://127.0.0.1:5000/bookdetails/${id}`)
-      .then((res) => {
-        if (!res.ok) throw new Error('Book not found')
-        return res.json()
-      })
-      .then(setBook)
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false))
-  }
-
   useEffect(() => {
+    const fetchBook = async () => {
+      setLoading(true)
+      try {
+        const response = await fetch(`http://127.0.0.1:5000/bookdetails/${id}`)
+        if (!response.ok) throw new Error('Book not found')
+        const data = await response.json()
+        setBook(data)
+      } catch (err) {
+        setError(err.message)
+      } finally {
+        setLoading(false)
+      }
+    }
+    
     fetchBook()
-  }, [id])
+  }, [id]) // Only id as dependency
 
   const handleNewReview = (newReview) => {
-    setBook((prevBook) => ({
-      ...prevBook,
-      reviews: [...prevBook.reviews, newReview],
+    setBook(prev => ({
+      ...prev,
+      reviews: [...prev.reviews, newReview]
     }))
   }
 
@@ -41,24 +43,24 @@ function BookDetail({ user }) {
       <h1 className="title">{book.title}</h1>
       <p className="author">Author: {book.author}</p>
       <p className="genres">
-        Genres: {book.genres.map((g) => g.name).join(', ')}
+        Genres: {book.genres?.map(g => g.name).join(', ') || 'No genres listed'}
       </p>
-      <p className="description">Description: {book.description || 'No description'}</p>
+      <p className="description">{book.description || 'No description available'}</p>
       <p className="rating">Average Rating: {book.average_rating || 'N/A'}</p>
 
       <hr className="my-4" />
       <h2 className="reviews">Reviews</h2>
-      <ReviewList reviews={book.reviews} />
+      <ReviewList reviews={book.reviews || []} />
 
       {user ? (
         <>
           <hr className="my-4" />
-          <h3 className="add-review">Add a Review</h3>
+          <h3>Add a Review</h3>
           <ReviewForm bookId={book.id} onReviewSubmit={handleNewReview} />
           <AddToShelf bookId={book.id} />
         </>
       ) : (
-        <p className="login-reviews">Login to add a review.</p>
+        <p>Please login to add reviews or shelves</p>
       )}
     </div>
   )

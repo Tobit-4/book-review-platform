@@ -1,15 +1,14 @@
-// client/src/components/ShelfForm.jsx
-import { useState } from 'react'
+import { useState } from 'react';
 
 function ShelfForm({ onShelfCreated }) {
-  const [name, setName] = useState('')
-  const [submitting, setSubmitting] = useState(false)
-  const [error, setError] = useState(null)
+  const [name, setName] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setSubmitting(true)
-    setError(null)
+    e.preventDefault();
+    setSubmitting(true);
+    setError(null);
 
     try {
       const res = await fetch('http://127.0.0.1:5000/shelves', {
@@ -19,44 +18,68 @@ function ShelfForm({ onShelfCreated }) {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
         body: JSON.stringify({ name }),
-      })
+      });
 
-      if (!res.ok) throw new Error('Failed to create shelf')
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || 'Failed to create shelf');
+      }
 
-      const newShelf = await res.json()
-      setName('')
-      onShelfCreated(newShelf)
+      const newShelf = await res.json();
+      setName('');
+      onShelfCreated(newShelf);
     } catch (err) {
-      setError(err.message)
+      setError(err.message);
     } finally {
-      setSubmitting(false)
+      setSubmitting(false);
     }
-  }
+  };
 
   return (
-    <form onSubmit={handleSubmit} className="form-container">
-      <h3 className="new-shelf">Create a New Shelf</h3>
+    <form onSubmit={handleSubmit} className="shelf-form">
+      <h3 className="shelf-form__title">Create New Shelf</h3>
 
-      <label className="shelf-name">Shelf Name</label>
-      <input
-        type="text"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        required
-        className="input-shelf"
-      />
+      <div className="shelf-form__group">
+        <label htmlFor="shelf-name" className="shelf-form__label">
+          Shelf Name
+        </label>
+        <input
+          id="shelf-name"
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className="shelf-form__input"
+          required
+          minLength="2"
+          maxLength="50"
+          placeholder="e.g. Fantasy Favorites"
+          disabled={submitting}
+        />
+      </div>
 
-      {error && <p className="text-red">{error}</p>}
+      {error && (
+        <p className="shelf-form__error" role="alert">
+          {error}
+        </p>
+      )}
 
       <button
         type="submit"
-        disabled={submitting}
-        className="submit-shelf"
+        disabled={submitting || !name.trim()}
+        className="shelf-form__submit"
+        aria-label={submitting ? 'Creating shelf' : 'Create new shelf'}
       >
-        {submitting ? 'Creating...' : 'Create Shelf'}
+        {submitting ? (
+          <>
+            <span className="shelf-form__spinner"></span>
+            Creating...
+          </>
+        ) : (
+          'Create Shelf'
+        )}
       </button>
     </form>
-  )
+  );
 }
 
-export default ShelfForm
+export default ShelfForm;

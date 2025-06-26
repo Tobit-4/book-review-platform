@@ -14,9 +14,15 @@ class Book(db.Model, SerializerMixin):
     cover_image_url = db.Column(db.String(255))
 
     serialize_rules = (
-        '-reviews.book',
-        '-genre_associations.book',
-        'genres.books',
+        '-reviews.book',          # Break review->book loop
+        '-genre_associations.book',  # Break genre association->book loop
+        ('genres', lambda g: [{'id': genre.id, 'name': genre.name} for genre in g]),
+        ('reviews', lambda r: [{
+            'id': rev.id,
+            'rating': rev.rating,
+            'content': rev.content,
+            'user': {'id': rev.user.id, 'username': rev.user.username}
+        } for rev in r])
     )
 
     # Relationships

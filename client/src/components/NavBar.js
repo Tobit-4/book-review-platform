@@ -1,45 +1,48 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom';
 
-function NavBar({ user, setUser }) {
-  const navigate = useNavigate()
+function NavBar({ user, setUser, onLogout }) {
+  const navigate = useNavigate();
 
   const handleLogout = () => {
-    localStorage.removeItem('token')
-    setUser(null)
-    navigate('/')
-  }
+    localStorage.removeItem('token');
+    setUser(null);
+    navigate('/');
+  };
 
   return (
-    <nav className="bg-gray-800 text-white px-4 py-2 flex items-center justify-between">
-      <div className="flex space-x-4">
-        <Link to="/" className="hover:underline">
+    <nav className='nav-bar'>
+      <div className='nav'>
+        <Link to="/" className="home">
           Home
         </Link>
         {user && (
           <>
-            <Link to="/myreviews" className="hover:underline">
+            <Link to='/booklist' className='booklist'>
+              booklists
+            </Link>
+            <Link to="/myreviews" className="reviews">
               My Reviews
             </Link>
-            <Link to="/shelves" className="hover:underline">
+            <Link to="/shelves" className="shelves">
               My Shelves
             </Link>
-            <Link to="/follows" className="hover:underline">
+            <Link to="/follows" className="followers">
               Follows
             </Link>
-            <Link to="/trending" className="hover:underline">
-              Trending
+            <Link to="/trending" className="trending">
+              Trending Books
             </Link>
           </>
         )}
       </div>
 
-      <div className="space-x-3">
+      <div className="user">
         {user ? (
           <>
-            <span className="text-sm">Hi, {user.username}</span>
+            <span className="user-name">Hi, {user.username}</span>
             <button
               onClick={handleLogout}
-              className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
+              className="log-out"
             >
               Logout
             </button>
@@ -48,13 +51,13 @@ function NavBar({ user, setUser }) {
           <>
             <Link
               to="/login"
-              className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded"
+              className="login"
             >
               Login
             </Link>
             <Link
               to="/signup"
-              className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded"
+              className="sign-up"
             >
               Sign Up
             </Link>
@@ -62,7 +65,7 @@ function NavBar({ user, setUser }) {
         )}
       </div>
     </nav>
-  )
+  );
 }
 
-export default NavBar
+export default NavBar;

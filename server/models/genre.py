@@ -11,13 +11,10 @@ class Genre(db.Model, SerializerMixin):
 
     serialize_rules = (
         '-book_associations.genre',
-        ('books', lambda books: [b.to_dict(rules=('-genres',)) for b in books]),
-    )
-
-    serialize_rules = ('-book_associations',)
+)
     # Relationships
     book_associations = db.relationship('BookGenre', back_populates='genre', cascade='all, delete-orphan')
     
     # Association proxy
     books = association_proxy('book_associations', 'book',
-                            creator=lambda book: BookGenre(book=book))
+                creator=lambda book: BookGenre(book=book))

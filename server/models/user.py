@@ -1,5 +1,6 @@
 from sqlalchemy_serializer import SerializerMixin
 from config import db
+from werkzeug.security import generate_password_hash, check_password_hash
 
 follows = db.Table(
     'follows',
@@ -15,8 +16,6 @@ class User(db.Model, SerializerMixin):
     email = db.Column(db.String(100), unique=True, nullable=False)
     password_hash = db.Column(db.String(120), nullable=False)  
     created_at = db.Column(db.DateTime, server_default=db.func.now())
-
-    serialize_rules = ('-password_hash', '-reviews.user', '-following', '-followers')  
     
     # Relationships
     reviews = db.relationship('Review', back_populates='user', cascade='all, delete-orphan')
@@ -28,3 +27,18 @@ class User(db.Model, SerializerMixin):
         secondaryjoin=(follows.c.followed_id == id),
         backref='followers'
     )
+
+    serialize_rules = (
+        '-password_hash',
+        '-reviews.user',
+        '-following',
+        '-followers'
+    )
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+        
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
+    
+    serialize_rules = ('-password_hash',)

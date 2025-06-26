@@ -1,9 +1,14 @@
-// client/src/components/Login.js
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-function Login({ setUser }) {
-  const [formData, setFormData] = useState({ username: "", password: "" });
+function LoginPage({ setUser }) {
+  const [formData, setFormData] = useState({ 
+    email: "", 
+    password: "" 
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
   function handleChange(e) {
@@ -12,34 +17,108 @@ function Login({ setUser }) {
 
   async function handleSubmit(e) {
     e.preventDefault();
+    setIsSubmitting(true);
+    
     try {
       const res = await fetch("http://127.0.0.1:5000/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
+      
       const data = await res.json();
 
       if (res.ok) {
+        toast.success('🎉 Login successful! Redirecting...');
+
+        const userData = {
+            id: data.user_id,
+            username: data.username,
+            email: formData.email
+          };
+          
         localStorage.setItem("token", data.access_token);
+        localStorage.setItem("user", JSON.stringify(userData));
         setUser(data.user);
-        navigate("/booklist");
+        setTimeout(() => navigate("/booklist"), 1500);
       } else {
-        alert(data.error || "Login failed");
+        toast.error(data.error || "❌ Invalid email or password");
       }
     } catch (err) {
+      toast.error("⚠️ Network error. Please try again.");
       console.error("Login error:", err);
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h2>Login</h2>
-      <input name="username" onChange={handleChange} value={formData.username} placeholder="Username" />
-      <input name="password" onChange={handleChange} value={formData.password} type="password" placeholder="Password" />
-      <button type="submit">Login</button>
-    </form>
+    <div className="auth-container">
+      <form onSubmit={handleSubmit} className="auth-form">
+        <div className="auth-header">
+          <h2 className="auth-title">Welcome Back</h2>
+          <p className="auth-subtitle">Sign in to your account</p>
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="email" className="form-label">
+            Email Address
+          </label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            onChange={handleChange}
+            value={formData.email}
+            placeholder="your@email.com"
+            className="form-input"
+            required
+          />
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="password" className="form-label">
+            Password
+          </label>
+          <input
+            id="password"
+            name="password"
+            type="password"
+            onChange={handleChange}
+            value={formData.password}
+            placeholder="••••••••"
+            className="form-input"
+            minLength="6"
+            required
+          />
+        </div>
+
+        <button 
+          type="submit" 
+          className="auth-button"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? (
+            <>
+              <span className="spinner"></span>
+              Signing In...
+            </>
+          ) : (
+            'Sign In'
+          )}
+        </button>
+
+        <div className="auth-footer">
+          <p>
+            Don't have an account?{' '}
+            <a href="/signup" className="auth-link">
+              Sign up
+            </a>
+          </p>
+        </div>
+      </form>
+    </div>
   );
 }
 
-export default Login;
+export default LoginPage;

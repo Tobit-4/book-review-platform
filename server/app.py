@@ -1,8 +1,3 @@
-#!/usr/bin/env python3
-
-# Standard library imports
-
-# Remote library imports
 from flask import request,make_response,jsonify
 from flask_restful import Resource,Api
 
@@ -23,13 +18,19 @@ def index():
 api.add_resource(SignUp, '/signup')
 api.add_resource(Login, '/login')
 
+# Users
+api.add_resource(CurrentUser, "/me")
+
+
 # books
 api.add_resource(BookList, '/booklist')
-api.add_resource(BookDetail, '/bookdetails')
+api.add_resource(BookDetail, '/bookdetails/<int:book_id>')
 
 # reviews
-api.add_resource(Review, '/reviews', '/reviews/<int:review_id>')
-api.add_resource(UserReviews, '/reviews/<int:review_id>')
+api.add_resource(ReviewList, '/reviews')  # POST and optional GET
+api.add_resource(ReviewResource, '/reviews/<int:review_id>')  # GET, PATCH, DELETE
+api.add_resource(UserReviewList, '/myreviews')  # current user reviews
+
 
 # genres
 api.add_resource(GenreList, '/genres')
@@ -51,4 +52,3 @@ api.add_resource(ReadingList, '/shelf')
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
-

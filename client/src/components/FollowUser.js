@@ -1,47 +1,102 @@
-// client/src/components/FollowUser.jsx
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react';
 
 function FollowUser({ targetUserId }) {
-  const [isFollowing, setIsFollowing] = useState(false)
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch(`http://127.0.0.1:5000/follows/check/${targetUserId}`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => setIsFollowing(data.following))
-  }, [targetUserId])
+    const checkFollowStatus = async () => {
+      try {
+        const res = await fetch(
+          `http://127.0.0.1:5000/follows/check/${targetUserId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('token')}`,
+            },
+          }
+        );
+
+        if (!res.ok) throw new Error('Failed to check follow status');
+        
+        const data = await res.json();
+        setIsFollowing(data.following);
+      } catch (err) {
+        setError(err.message);
+        console.error('Follow check error:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkFollowStatus();
+  }, [targetUserId]);
 
   const toggleFollow = async () => {
-    const method = isFollowing ? 'DELETE' : 'POST'
-    const url = `http://127.0.0.1:5000/follows/${targetUserId}`
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const method = isFollowing ? 'DELETE' : 'POST';
+      const url = `http://127.0.0.1:5000/follows/${targetUserId}`;
 
-    const res = await fetch(url, {
-      method,
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-      },
-    })
+      const res = await fetch(url, {
+        method,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
 
-    if (res.ok) {
-      setIsFollowing(!isFollowing)
-    } else {
-      alert('Failed to update follow status')
+      if (!res.ok) throw new Error(`Failed to ${isFollowing ? 'unfollow' : 'follow'}`);
+      
+      setIsFollowing(!isFollowing);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
     }
+  };
+
+  if (error) {
+    return (
+      <div className="follow-error">
+        <span className="error-message">{error}</span>
+        <button 
+          onClick={toggleFollow}
+          className="retry-button"
+        >
+          Retry
+        </button>
+      </div>
+    );
   }
 
   return (
-    <button
-      onClick={toggleFollow}
-      className={`px-3 py-1 rounded text-white ${
-        isFollowing ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700'
-      }`}
-    >
-      {isFollowing ? 'Unfollow' : 'Follow'}
-    </button>
-  )
+    <div className="follow-container">
+      <button
+        onClick={toggleFollow}
+        disabled={isLoading}
+        className={`follow-button ${
+          isFollowing ? 'follow-button--unfollow' : 'follow-button--follow'
+        }`}
+        aria-label={isFollowing ? 'Unfollow user' : 'Follow user'}
+      >
+        {isLoading ? (
+          <span className="follow-spinner"></span>
+        ) : isFollowing ? (
+          'Following'
+        ) : (
+          'Follow'
+        )}
+      </button>
+      
+      {error && (
+        <p className="follow-error-message" role="alert">
+          {error}
+        </p>
+      )}
+    </div>
+  );
 }
 
-export default FollowUser
+export default FollowUser;
