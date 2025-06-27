@@ -9,49 +9,84 @@ function AddToShelf({ bookId }) {
   useEffect(() => {
     const fetchShelves = async () => {
       try {
-        const res = await fetch('/shelves', {
+        const res = await fetch('http://127.0.0.1:5000/shelves', {
+          credentials: 'include',
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
           },
         });
-        if (!res.ok) throw new Error('Failed to fetch shelves');
-        const data = await res.json();
-        setShelves(data.shelves);
+        
+        if (!res.ok) {
+          const errorData = await res.json();
+          throw new Error(errorData.message || 'Failed to fetch shelves');
+        }
+        
+        const { shelves: shelfData } = await res.json();
+        // Ensure we have valid shelves data
+        setShelves(Array.isArray(shelfData) ? shelfData : []);
       } catch (err) {
         setMessage({ text: err.message, type: 'error' });
+        setShelves([]); // Reset to empty array on error
       }
     };
     fetchShelves();
   }, []);
 
+  useEffect(() => {
+    console.log("Book ID received by AddToShelf:", bookId);
+  }, [bookId]);
+  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!selectedShelfId || isSubmitting) return;
     if (!selectedShelfId) {
       setMessage({ text: 'Please select a shelf', type: 'error' });
       return;
     }
-
+    
     setIsSubmitting(true);
     setMessage({ text: '', type: '' });
 
     try {
-      const res = await fetch(
-        `/shelves/${selectedShelfId}/books`,
+      const response = await fetch(
+        `http://127.0.0.1:5000/shelves/${selectedShelfId}/books`,
         {
           method: 'POST',
+          credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
           },
           body: JSON.stringify({ book_id: bookId }),
         }
       );
 
-      if (!res.ok) throw new Error('Failed to add book to shelf');
-      setMessage({ text: 'Book added to shelf successfully!', type: 'success' });
+      const result = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(result.message || 'Failed to add book to shelf');
+      }
+
+      // Safely update state with null checks
+      if (result.shelf?.id) {
+        setShelves(prevShelves => 
+          (prevShelves || []).map(shelf => 
+            shelf?.id === result.shelf.id 
+              ? { ...shelf, books: result.shelf.books || [] } 
+              : shelf
+          )
+        );
+      }
+
+      setMessage({ text: result.message, type: 'success' });
       setSelectedShelfId('');
+      
     } catch (err) {
-      setMessage({ text: err.message, type: 'error' });
+      setMessage({ 
+        text: err.message || 'Failed to add book to shelf', 
+        type: 'error' 
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -71,10 +106,12 @@ function AddToShelf({ bookId }) {
           disabled={isSubmitting}
         >
           <option value="">Select shelf</option>
-          {shelves.map((shelf) => (
-            <option key={shelf.id} value={shelf.id}>
-              {shelf.name}
-            </option>
+          {(shelves || []).map((shelf) => (
+            shelf && (
+              <option key={shelf.id} value={shelf.id}>
+                {shelf.name}
+              </option>
+            )
           ))}
         </select>
       </div>

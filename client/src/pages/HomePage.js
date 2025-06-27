@@ -7,7 +7,7 @@ function HomePage() {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        fetch('/booklist')
+        fetch('http://127.0.0.1:5000/booklist')
             .then(r => {
                 if (!r.ok) {
                     throw new Error('Network response was not ok');
@@ -33,7 +33,10 @@ function HomePage() {
 
     return (
         <div>
-            <h1 className='book-header'>Book List</h1>
+            <div className='book-header'>
+                <h1>Welcome Shuo</h1>
+                <h1>Book List</h1>
+            </div>
             <div className='book-list'>
                 {books.length > 0 ? (
                     books.map((book) => (

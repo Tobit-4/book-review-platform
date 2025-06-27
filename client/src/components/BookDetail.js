@@ -14,7 +14,7 @@ function BookDetail({ user }) {
     const fetchBook = async () => {
       setLoading(true)
       try {
-        const response = await fetch(`/bookdetails/${id}`)
+        const response = await fetch(`http://127.0.0.1:5000/bookdetails/${id}`)
         if (!response.ok) throw new Error('Book not found')
         const data = await response.json()
         setBook(data)

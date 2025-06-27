@@ -19,8 +19,9 @@ function AddBookForm({ token, onBookAdded }) {
     setMessage(null);
 
     try {
-      const res = await fetch('/booklist', {
+      const res = await fetch('http://127.0.0.1:5000/booklist', {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,

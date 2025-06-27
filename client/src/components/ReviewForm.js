@@ -11,13 +11,14 @@ function ReviewForm({ bookId, onReviewSubmit }) {
     const token = localStorage.getItem('token')
 
     try {
-      const res = await fetch('/reviews', {
+      const res = await fetch('http://127.0.0.1:5000/reviews', {
+        credentials: 'include',
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ book_id: bookId, rating, comment }),
+        body: JSON.stringify({ book_id: Number(bookId), rating: Number(rating), comment: comment }),
       })
 
       if (!res.ok) {

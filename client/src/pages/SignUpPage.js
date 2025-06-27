@@ -60,7 +60,7 @@ function SignUpPage({ setUser }) {
     setIsSubmitting(true);
     
     try {
-      const res = await fetch("/signup", {
+      const res = await fetch("http://127.0.0.1:5000/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -69,9 +69,14 @@ function SignUpPage({ setUser }) {
           password: formData.password
         }),
       });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Signup failed');
+      }
       
       const data = await res.json();
-
+      
       if (res.ok) {
         toast.success("🎉 Account created successfully! Redirecting...");
         localStorage.setItem("token", data.access_token);

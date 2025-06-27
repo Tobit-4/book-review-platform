@@ -7,7 +7,6 @@ import LoginPage from './pages/LoginPage'
 import SignUpPage from './pages/SignUpPage'
 import BookDetail from './components/BookDetail'
 import MyReviews from './components/MyReviews'
-import FollowUser from './components/FollowUser'
 import ShelvesList from './components/ShelvesList'
 import TrendingBooks from './components/TrendingBooks'
 import AddBookForm from './components/AddBookForm'
@@ -52,7 +51,6 @@ function App() {
           <Route path="/signup" element={<SignUpPage setUser={setUser} />} />
           <Route path="/book/:id" element={<BookDetail user={user} />} />
           <Route path="/myreviews" element={user ? <MyReviews token={token} /> : <Navigate to="/login" replace />} />
-          <Route path="/follows" element={<FollowUser user={user} />} />
           <Route path="/shelves" element={user ? <ShelvesList user={user}/> : <Navigate to="/login" replace />} />
           <Route path="/trending" element={<TrendingBooks />} />
           <Route path="/addbook" element={<AddBookForm token={token} />} />

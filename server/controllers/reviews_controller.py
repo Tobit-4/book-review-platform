@@ -19,11 +19,11 @@ class ReviewResource(Resource):
         try:
             if 'rating' in data:
                 review.rating = data['rating']
-            if 'content' in data:
-                review.content = data['content']
+            if 'comment' in data:
+                review.comment = data['comment']
             
             db.session.commit()
-            return review.to_dict(rules=('-user', '-book')), 200
+            return review.to_dict(), 200
             
         except Exception as e:
             db.session.rollback()
@@ -58,8 +58,17 @@ class UserReviewList(Resource):
 class ReviewList(Resource):
     @jwt_required()
     def get(self):
-        reviews = Review.query.all()
-        return [r.to_dict() for r in reviews]
+        reviews = Review.query.options(db.joinedload(Review.user)).all()
+        return [{
+            'id': r.id,
+            'rating': r.rating,
+            'comment': r.comment, 
+            'user': {
+                'id': r.user.id,
+                'username': r.user.username
+            },
+            'created_at': r.created_at.isoformat()
+        } for r in reviews]
     
     @jwt_required()
     def post(self):
@@ -86,6 +95,10 @@ class ReviewList(Resource):
                 'book_id': review.book_id,
                 'rating': review.rating,
                 'comment': review.comment,
+                'user': {
+                'id': review.user.id,
+                'username': review.user.username
+            },
                 'created_at': review.created_at.isoformat()
             }, 201
             

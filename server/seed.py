@@ -116,6 +116,7 @@ def seed_database():
                     
                     selected_books = sample(books, min(randint(2, 4), len(books)))
                     for book in selected_books:
+                        db.session.flush()
                         sb = ShelfBook(
                             user_id=user.id,
                             shelf_id=shelf.id,
@@ -142,29 +143,12 @@ def seed_database():
                         db.session.add(review)
             db.session.commit()
 
-            # Set up follows
-            print("👥 Creating follow relationships...")
-            follow_actions = [
-                (users[0], users[1]),  # Alice → Bob
-                (users[0], users[2]),  # Alice → Carol
-                (users[1], users[0]),  # Bob → Alice
-                (users[2], users[0])   # Carol → Alice
-            ]
-            
-            for follower, followed in follow_actions:
-                follower.following.append(followed)
-            db.session.commit()
-
-            # Get follow count correctly
-            follow_count = db.session.execute(text("SELECT COUNT(*) FROM follows")).scalar()
-
             print("\n✅ Database seeded successfully!")
             print(f"• Users: {len(users)}")
             print(f"• Books: {len(books)}")
             print(f"• Shelves: {len(shelf_data)*len(users)}")
             print(f"• Reviews: {Review.query.count()}")
-            print(f"• Follows: {follow_count}")
-
+            
         except Exception as e:
             db.session.rollback()
             print(f"\n❌ Error seeding database: {e}")

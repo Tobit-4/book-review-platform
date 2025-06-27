@@ -7,46 +7,47 @@ function ShelvesList({ user }) {
   const [error, setError] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
 
-  useEffect(() => {
-    const fetchShelves = async () => {
-        try {
-          const token = localStorage.getItem('token');
-          
-          if (!token) {
-            console.error('No JWT token found in localStorage');
-            throw new Error('Authentication required');
-          }
-      
-          const response = await fetch('http://localhost:5000/shelves', {
-            method: 'GET',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            }
-          });
-      
-          if (!response) throw new Error('No response from server');
+  const fetchShelves = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) throw new Error('Authentication required');
 
-          if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Failed to fetch shelves');
-          }
-      
-          const data = await response.json();
-          setShelves(data.shelves || data);
-        } catch (error) {
-          console.error('Fetch error:', error);
-          setError(error.message);
-        } finally {
-          setLoading(false);
+      const response = await fetch('http://127.0.0.1:5000/shelves?include_books=true', {
+        credentials: 'include',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         }
-      };
+      });
 
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to fetch shelves');
+      }
+
+      const data = await response.json();
+      // Filter out any null or invalid shelf objects
+      const validShelves = (data.shelves || data || []).filter(shelf => 
+        shelf && typeof shelf === 'object' && shelf.id && shelf.name
+      );
+      setShelves(validShelves);
+    } catch (err) {
+      console.error('Fetch error:', err);
+      setError(err.message);
+      setShelves([]); // Reset to empty array on error
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     if (user) fetchShelves();
   }, [user]);
 
   const handleNewShelf = (newShelf) => {
-    setShelves(prevShelves => [newShelf, ...prevShelves]);
+    if (newShelf && newShelf.id && newShelf.name) {
+      setShelves(prev => [newShelf, ...prev]);
+    }
   };
 
   const handleDeleteShelf = async (shelfId) => {
@@ -54,16 +55,16 @@ function ShelvesList({ user }) {
     
     try {
       setDeletingId(shelfId);
-      const res = await fetch(`/shelves/${shelfId}`, {
+      const res = await fetch(`http://127.0.0.1:5000/shelves/${shelfId}`, {
         method: 'DELETE',
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
       });
       if (!res.ok) throw new Error('Failed to delete shelf');
-      setShelves((prev) => prev.filter((s) => s.id !== shelfId));
+      setShelves(prev => prev.filter(shelf => shelf?.id !== shelfId));
     } catch (err) {
-      alert(err.message);
+      setError(err.message);
     } finally {
       setDeletingId(null);
     }
@@ -71,7 +72,7 @@ function ShelvesList({ user }) {
 
   if (!user) return <p className="shelf-login-prompt">Please login to view your shelves.</p>;
   if (loading) return <div className="shelf-loading">Loading shelves...</div>;
-  if (error) return <p className="shelf-error">{error}</p>;
+  if (error) return <p className="shelf-error">Error: {error}</p>;
 
   return (
     <div className="shelf-list-container">
@@ -86,44 +87,48 @@ function ShelvesList({ user }) {
         </div>
       ) : (
         <div className="shelf-grid">
-          {shelves.map((shelf) => (
-            <article key={shelf.id} className="shelf-card">
-              <header className="shelf-card-header">
-                <h3 className="shelf-card-title">{shelf.name}</h3>
-                <span className="shelf-book-count">
-                  {shelf.books?.length || 0} book{shelf.books?.length !== 1 ? 's' : ''}
-                </span>
-              </header>
+          {shelves.map(shelf => (
+            shelf && ( // Add null check here
+              <article key={shelf.id} className="shelf-card">
+                <header className="shelf-card-header">
+                  <h3 className="shelf-card-title">{shelf.name}</h3>
+                  <span className="shelf-book-count">
+                    {shelf.book_count || 0} book{shelf.book_count !== 1 ? 's' : ''}
+                  </span>
+                </header>
 
-              {shelf.books?.length > 0 ? (
-                <ul className="shelf-book-list">
-                  {shelf.books.slice(0, 3).map((book) => (
-                    <li key={book.id} className="shelf-book-item">
-                      <span className="shelf-book-title">{book.title}</span>
-                      <span className="shelf-book-author">by {book.author}</span>
-                    </li>
-                  ))}
-                  {shelf.books.length > 3 && (
-                    <li className="shelf-more-books">
-                      +{shelf.books.length - 3} more
-                    </li>
-                  )}
-                </ul>
-              ) : (
-                <p className="shelf-no-books">No books on this shelf</p>
-              )}
+                {shelf.books?.length > 0 ? (
+                  <ul className="shelf-book-list">
+                    {shelf.books.slice(0, 3).map(book => (
+                      book && ( // Add null check for books too
+                        <li key={book.id} className="shelf-book-item">
+                          <span className="shelf-book-title">{book.title}</span>
+                          <span className="shelf-book-author">by {book.author}</span>
+                        </li>
+                      )
+                    ))}
+                    {shelf.books.length > 3 && (
+                      <li className="shelf-more-books">
+                        +{shelf.books.length - 3} more
+                      </li>
+                    )}
+                  </ul>
+                ) : (
+                  <p className="shelf-no-books">No books on this shelf</p>
+                )}
 
-              <footer className="shelf-card-footer">
-                <button
-                  onClick={() => handleDeleteShelf(shelf.id)}
-                  className="shelf-delete-btn"
-                  disabled={deletingId === shelf.id}
-                  aria-label={`Delete ${shelf.name} shelf`}
-                >
-                  {deletingId === shelf.id ? 'Deleting...' : 'Delete Shelf'}
-                </button>
-              </footer>
-            </article>
+                <footer className="shelf-card-footer">
+                  <button
+                    onClick={() => handleDeleteShelf(shelf.id)}
+                    className="shelf-delete-btn"
+                    disabled={deletingId === shelf.id}
+                    aria-label={`Delete ${shelf.name} shelf`}
+                  >
+                    {deletingId === shelf.id ? 'Deleting...' : 'Delete Shelf'}
+                  </button>
+                </footer>
+              </article>
+            )
           ))}
         </div>
       )}

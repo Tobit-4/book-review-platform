@@ -11,7 +11,9 @@ function ShelfForm({ onShelfCreated }) {
     setError(null);
 
     try {
-      const res = await fetch('/shelves', {
+        console.log('Submitting shelf:', { name }); // Debug log
+      const res = await fetch('http://127.0.0.1:5000/shelves', {
+        credentials: 'include',
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -26,9 +28,11 @@ function ShelfForm({ onShelfCreated }) {
       }
 
       const newShelf = await res.json();
+      console.log('API Response:', newShelf);
       setName('');
       onShelfCreated(newShelf);
     } catch (err) {
+        console.error('Error creating shelf:', err)
       setError(err.message);
     } finally {
       setSubmitting(false);

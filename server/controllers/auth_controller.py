@@ -6,35 +6,43 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 class SignUp(Resource):
     def post(self):
-        data = request.get_json()
-        
-        # required fields
-        if not data.get('username') or not data.get('email') or not data.get('password'):
-            return {'error': 'Username, email and password are required'}, 400
+        try:
+            data = request.get_json()
             
-        # Check if user email already exists
-        if User.query.filter_by(email=data['email']).first():
-            return {'error': 'Email already exists'}, 400
-        
-        # check if username alr exists
-        if User.query.filter_by(username=data['username']).first():
-            return {'error': 'Username already exists'}, 400
+            if not data or not all(key in data for key in ['username', 'email', 'password']):
+                return {'error': 'Username, email and password are required'}, 400
+                
+            # Check existing users
+            if User.query.filter_by(email=data['email']).first():
+                return {'error': 'Email already exists'}, 409
+            if User.query.filter_by(username=data['username']).first():
+                return {'error': 'Username already exists'}, 409
+                
+            # Create user
+            user = User(
+                username=data['username'],
+                email=data['email'],
+            )
+            user.set_password(data['password'])
             
-        # Create user with hashed password
-        user = User(
-            username=data['username'],
-            email=data['email'],
-        )
-        user.set_password(data['password'])
-        
-        db.session.add(user)
-        db.session.commit()
-        
-        return {
-            'id': user.id,
-            'username': user.username,
-            'email': user.email
-        }, 201
+            db.session.add(user)
+            db.session.commit()
+            
+            # Create token for immediate login
+            access_token = create_access_token(identity=user.id)
+            
+            return {
+                'access_token': access_token,
+                'user': {
+                    'id': user.id,
+                    'username': user.username,
+                    'email': user.email
+                }
+            }, 201
+            
+        except Exception as e:
+            db.session.rollback()
+            return {'error': str(e)}, 500
 class Login(Resource):
     def post(self):
         data = request.get_json()

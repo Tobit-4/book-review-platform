@@ -14,7 +14,7 @@ function SearchBook() {
     const searchQuery = searchParams.get('query');
     if (searchQuery) {
       setLoading(true);
-      fetch(`/books/search?query=${encodeURIComponent(searchQuery)}`)
+      fetch(`http://127.0.0.1:5000/books/search?query=${encodeURIComponent(searchQuery)}`)
         .then(res => res.json())
         .then(data => {
           setResults(data);

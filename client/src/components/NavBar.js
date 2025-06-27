@@ -20,9 +20,6 @@ function NavBar({ user, setUser, onLogout }) {
             <Link to="/shelves" className="shelves">
               My Shelves
             </Link>
-            <Link to="/follows" className="followers">
-              Follows
-            </Link>
             <Link to="/trending" className="trending">
               Trending Books
             </Link>
@@ -58,6 +55,22 @@ function NavBar({ user, setUser, onLogout }) {
           </>
         )}
       </div>
+      <form
+        className="navbar-search-form"
+        onSubmit={(e) => {
+            e.preventDefault();
+            const query = e.target.search.value.trim();
+            if (query) window.location.href = `/search?query=${encodeURIComponent(query)}`;
+        }}
+        >
+        <input
+            type="text"
+            name="search"
+            placeholder="Search books..."
+            className="navbar-search-input"
+        />
+        <button type="submit" className="navbar-search-button">Search</button>
+    </form>
     </nav>
   );
 }

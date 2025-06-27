@@ -20,6 +20,10 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://bookuser:bookpass@localhos
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = False
 app.json.compact = False
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    'pool_pre_ping': True,
+    'pool_recycle': 300,
+}
 
 
 # Define metadata, instantiate db

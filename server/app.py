@@ -1,18 +1,34 @@
-from flask import request,make_response,jsonify
-from flask_restful import Resource,Api
-
+from flask_cors import CORS
+from sqlalchemy import text
 
 # Local imports
 from config import app, db, api
 # Add your model imports
 from models import *
 from controllers import *
+CORS(app, 
+     resources={
+         r"/*": {
+             "origins": ["http://localhost:3000"],
+             "methods": ["GET", "POST", "PUT", "PATCH", "DELETE","OPTIONS"],
+             "allow_headers": ["Content-Type", "Authorization"],
+             "supports_credentials": True
+         }
+     })
 
 
 # Views go here!
 @app.route('/')
 def index():
     return '<h1>Welcome</h1>'
+
+@app.route('/db-check')
+def db_check():
+    try:
+        db.session.execute(text("SELECT 1"))
+        return {"database": "connected"}, 200
+    except Exception as e:
+        return {"database": str(e)}, 500
 
 # auth
 api.add_resource(SignUp, '/signup')
@@ -41,12 +57,6 @@ api.add_resource(SearchBooks, '/books/search')
 
 # trends
 api.add_resource(TrendingBooks, '/books/trending')
-
-# Follow System
-api.add_resource(FollowUser, '/follow/<int:user_id>')
-api.add_resource(UnfollowUser, '/unfollow/<int:user_id>')
-api.add_resource(FollowingFeed, '/feed')
-api.add_resource(CheckFollow, '/follows/check/<int:user_id>')
 
 # Shelves
 api.add_resource(ShelfList, '/shelves')

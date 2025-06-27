@@ -11,7 +11,8 @@ function MyReviews({ token }) {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const response = await fetch('/myreviews', {
+        const response = await fetch('http://127.0.0.1:5000/myreviews', {
+            credentials: 'include',
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -33,7 +34,8 @@ function MyReviews({ token }) {
 
   const handleDelete = async (id) => {
     try {
-      const response = await fetch(`/reviews/${id}`, {
+      const response = await fetch(`http://127.0.0.1:5000/reviews/${id}`, {
+        credentials: 'include',
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -56,7 +58,8 @@ function MyReviews({ token }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch(`/reviews/${editing}`, {
+      const response = await fetch(`http://127.0.0.1:5000/reviews/${editing}`, {
+        credentials: 'include',
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -113,7 +116,7 @@ function MyReviews({ token }) {
         <ul className="reviews-list">
           {reviews.map((review) => (
             <li key={review.id} className="review-item">
-              {review.book && <BookCard book={review.book} compact />}
+              {review.book && <BookCard book={review.book} />}
               
               <div className="review-content">
                 <div className="review-rating">

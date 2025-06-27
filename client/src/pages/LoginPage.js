@@ -20,7 +20,7 @@ function LoginPage({ setUser }) {
     setIsSubmitting(true);
     
     try {
-      const res = await fetch("/login", {
+      const res = await fetch("http://127.0.0.1:5000/login", {
         method: "POST",
         credentials: 'include',
         headers: { "Content-Type": "application/json" },
