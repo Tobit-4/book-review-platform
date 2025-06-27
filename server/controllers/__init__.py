@@ -5,8 +5,8 @@ from .user_controller import CurrentUser, UserReviews
 from .genre_controller import GenreList, GenreBooks
 from .search_controller import SearchBooks
 from .trending_controller import TrendingBooks
-from .follow_controller import FollowUser, UnfollowUser, FollowingFeed
-from .shelf_controller import ReadingList
+from .follow_controller import FollowUser, UnfollowUser, FollowingFeed,CheckFollow
+from .shelf_controller import ShelfBooks,ShelfDetail, ShelfList
 
 __all__ = [
     "SignUp", "Login",
@@ -16,6 +16,6 @@ __all__ = [
     "GenreList", "GenreBooks",
     "SearchBooks",
     "TrendingBooks",
-    "FollowUser", "UnfollowUser", "FollowingFeed",
-    "ReadingList"
+    "FollowUser", "UnfollowUser", "FollowingFeed","CheckFollow",
+    "ShelfList","ShelfBooks", "ShelfDetail",
 ]

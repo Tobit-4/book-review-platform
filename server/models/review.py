@@ -1,5 +1,6 @@
 from sqlalchemy_serializer import SerializerMixin
 from config import db
+from datetime import datetime
 
 class Review(db.Model, SerializerMixin):
     __tablename__ = 'reviews'
@@ -11,7 +12,7 @@ class Review(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     rating = db.Column(db.Integer, nullable=False)
     comment = db.Column(db.Text)
-    created_at = db.Column(db.DateTime, server_default=db.func.now())
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, server_default=db.func.now())
     updated_at = db.Column(db.DateTime, onupdate=db.func.now())
 
     serialize_rules = (

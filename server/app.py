@@ -46,9 +46,14 @@ api.add_resource(TrendingBooks, '/books/trending')
 api.add_resource(FollowUser, '/follow/<int:user_id>')
 api.add_resource(UnfollowUser, '/unfollow/<int:user_id>')
 api.add_resource(FollowingFeed, '/feed')
+api.add_resource(CheckFollow, '/follows/check/<int:user_id>')
 
 # Shelves
-api.add_resource(ReadingList, '/shelf')
+api.add_resource(ShelfList, '/shelves')
+api.add_resource(ShelfDetail, '/shelves/<int:shelf_id>')
+api.add_resource(ShelfBooks, 
+                '/shelves/<int:shelf_id>/books',
+                '/shelves/<int:shelf_id>/books/<int:book_id>')
 
 if __name__ == '__main__':
-    app.run(port=5555, debug=True)
+    app.run(port=5000, debug=True)

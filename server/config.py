@@ -14,10 +14,13 @@ from datetime import timedelta
 
 # Instantiate app, set attributes
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
+CORS(app)
+api=Api(app)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://bookuser:bookpass@localhost:5432/book_review_db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = False
 app.json.compact = False
+
 
 # Define metadata, instantiate db
 metadata = MetaData(naming_convention={
@@ -31,7 +34,6 @@ jwt = JWTManager(app)
 app.config["JWT_SECRET_KEY"] = "super-secret-key"
 
 # Instantiate REST API
-api = Api(app)
 
 # Instantiate CORS
-CORS(app)
+

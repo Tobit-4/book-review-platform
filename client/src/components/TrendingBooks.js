@@ -9,7 +9,7 @@ function TrendingBooks() {
   useEffect(() => {
     const fetchTrendingBooks = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:5000/books/trending');
+        const response = await fetch('/books/trending');
         if (!response.ok) throw new Error('Failed to fetch trending books');
         const data = await response.json();
         setBooks(data);
@@ -71,9 +71,6 @@ function TrendingBooks() {
                       src={book.cover_image_url}
                       alt={`Cover of ${book.title}`}
                       className="book-cover"
-                      onError={(e) => {
-                        e.target.src = '/default-book-cover.jpg';
-                      }}
                     />
                   </div>
                 )}

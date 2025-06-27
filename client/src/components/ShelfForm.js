@@ -11,7 +11,7 @@ function ShelfForm({ onShelfCreated }) {
     setError(null);
 
     try {
-      const res = await fetch('http://127.0.0.1:5000/shelves', {
+      const res = await fetch('/shelves', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

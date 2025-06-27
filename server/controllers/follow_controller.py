@@ -44,3 +44,16 @@ class FollowingFeed(Resource):
 
         sorted_reviews = sorted(reviews, key=lambda r: r.created_at, reverse=True)
         return [r.to_dict() for r in sorted_reviews], 200
+    
+class CheckFollow(Resource):
+    @jwt_required()
+    def get(self, user_id):
+        current_user = db.session.get(User, get_jwt_identity())
+        target_user = db.session.get(User, user_id)
+        
+        if not target_user:
+            return {"error": "User not found"}, 404
+            
+        return {
+            "following": target_user in current_user.following
+        }, 200

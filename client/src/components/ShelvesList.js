@@ -9,22 +9,38 @@ function ShelvesList({ user }) {
 
   useEffect(() => {
     const fetchShelves = async () => {
-      try {
-        setLoading(true);
-        const res = await fetch('http://127.0.0.1:5000/myshelves', {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-        });
-        if (!res.ok) throw new Error('Failed to load shelves');
-        const data = await res.json();
-        setShelves(data);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
+        try {
+          const token = localStorage.getItem('token');
+          
+          if (!token) {
+            console.error('No JWT token found in localStorage');
+            throw new Error('Authentication required');
+          }
+      
+          const response = await fetch('http://localhost:5000/shelves', {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+      
+          if (!response) throw new Error('No response from server');
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Failed to fetch shelves');
+          }
+      
+          const data = await response.json();
+          setShelves(data.shelves || data);
+        } catch (error) {
+          console.error('Fetch error:', error);
+          setError(error.message);
+        } finally {
+          setLoading(false);
+        }
+      };
 
     if (user) fetchShelves();
   }, [user]);
@@ -38,7 +54,7 @@ function ShelvesList({ user }) {
     
     try {
       setDeletingId(shelfId);
-      const res = await fetch(`http://127.0.0.1:5000/shelves/${shelfId}`, {
+      const res = await fetch(`/shelves/${shelfId}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,

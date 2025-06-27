@@ -9,7 +9,7 @@ function FollowingList() {
   useEffect(() => {
     const fetchFollowing = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:5000/follows/mine', {
+        const response = await fetch('/feed', {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },

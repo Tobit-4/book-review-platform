@@ -9,14 +9,14 @@ function AddToShelf({ bookId }) {
   useEffect(() => {
     const fetchShelves = async () => {
       try {
-        const res = await fetch('http://127.0.0.1:5000/shelves/mine', {
+        const res = await fetch('/shelves', {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
         });
         if (!res.ok) throw new Error('Failed to fetch shelves');
         const data = await res.json();
-        setShelves(data);
+        setShelves(data.shelves);
       } catch (err) {
         setMessage({ text: err.message, type: 'error' });
       }
@@ -36,7 +36,7 @@ function AddToShelf({ bookId }) {
 
     try {
       const res = await fetch(
-        `http://127.0.0.1:5000/shelves/${selectedShelfId}/books`,
+        `/shelves/${selectedShelfId}/books`,
         {
           method: 'POST',
           headers: {

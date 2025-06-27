@@ -11,7 +11,7 @@ function MyReviews({ token }) {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:5000/myreviews', {
+        const response = await fetch('/myreviews', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -33,7 +33,7 @@ function MyReviews({ token }) {
 
   const handleDelete = async (id) => {
     try {
-      const response = await fetch(`http://127.0.0.1:5000/reviews/${id}`, {
+      const response = await fetch(`/reviews/${id}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -56,7 +56,7 @@ function MyReviews({ token }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch(`http://127.0.0.1:5000/reviews/${editing}`, {
+      const response = await fetch(`/reviews/${editing}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

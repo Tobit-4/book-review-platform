@@ -1,13 +1,7 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 function NavBar({ user, setUser, onLogout }) {
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    setUser(null);
-    navigate('/');
-  };
+  
 
   return (
     <nav className='nav-bar'>
@@ -41,7 +35,7 @@ function NavBar({ user, setUser, onLogout }) {
           <>
             <span className="user-name">Hi, {user.username}</span>
             <button
-              onClick={handleLogout}
+              onClick={onLogout}
               className="log-out"
             >
               Logout

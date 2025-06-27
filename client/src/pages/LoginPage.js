@@ -20,8 +20,9 @@ function LoginPage({ setUser }) {
     setIsSubmitting(true);
     
     try {
-      const res = await fetch("http://127.0.0.1:5000/login", {
+      const res = await fetch("/login", {
         method: "POST",
+        credentials: 'include',
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
@@ -31,15 +32,11 @@ function LoginPage({ setUser }) {
       if (res.ok) {
         toast.success('🎉 Login successful! Redirecting...');
 
-        const userData = {
-            id: data.user_id,
-            username: data.username,
-            email: formData.email
-          };
-          
+        const userData = data.user;
+
         localStorage.setItem("token", data.access_token);
         localStorage.setItem("user", JSON.stringify(userData));
-        setUser(data.user);
+        setUser(userData);
         setTimeout(() => navigate("/booklist"), 1500);
       } else {
         toast.error(data.error || "❌ Invalid email or password");

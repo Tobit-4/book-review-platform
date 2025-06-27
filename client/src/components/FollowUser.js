@@ -6,21 +6,20 @@ function FollowUser({ targetUserId }) {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    if (!targetUserId) return;
+
     const checkFollowStatus = async () => {
       try {
-        const res = await fetch(
-          `http://127.0.0.1:5000/follows/check/${targetUserId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem('token')}`,
-            },
-          }
-        );
+        const res = await fetch(`/follows/check/${targetUserId}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        });
 
         if (!res.ok) throw new Error('Failed to check follow status');
-        
+
         const data = await res.json();
-        setIsFollowing(data.following);
+        setIsFollowing(data.isFollowing); // Changed from 'following' to 'isFollowing'
       } catch (err) {
         setError(err.message);
         console.error('Follow check error:', err);
@@ -32,39 +31,41 @@ function FollowUser({ targetUserId }) {
     checkFollowStatus();
   }, [targetUserId]);
 
-  const toggleFollow = async () => {
-    setIsLoading(true);
-    setError(null);
+    // Toggle follow/unfollow
+    const toggleFollow = async () => {
+        setIsLoading(true);
+        setError(null);
     
-    try {
-      const method = isFollowing ? 'DELETE' : 'POST';
-      const url = `http://127.0.0.1:5000/follows/${targetUserId}`;
-
-      const res = await fetch(url, {
-        method,
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-      });
-
-      if (!res.ok) throw new Error(`Failed to ${isFollowing ? 'unfollow' : 'follow'}`);
-      
-      setIsFollowing(!isFollowing);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
+        try {
+          const endpoint = isFollowing 
+            ? `/unfollow/${targetUserId}`
+            : `/follow/${targetUserId}`;
+    
+          const res = await fetch(endpoint, {
+            method: isFollowing ? 'DELETE' : 'POST',
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('token')}`,
+            },
+          });
+    
+          if (!res.ok) {
+            const errorData = await res.json().catch(() => ({}));
+            throw new Error(errorData.message || `Failed to ${isFollowing ? 'unfollow' : 'follow'}`);
+          }
+    
+          setIsFollowing(!isFollowing); 
+        } catch (err) {
+          setError(err.message);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+    
   if (error) {
     return (
       <div className="follow-error">
         <span className="error-message">{error}</span>
-        <button 
-          onClick={toggleFollow}
-          className="retry-button"
-        >
+        <button onClick={toggleFollow} className="retry-button">
           Retry
         </button>
       </div>
@@ -82,19 +83,13 @@ function FollowUser({ targetUserId }) {
         aria-label={isFollowing ? 'Unfollow user' : 'Follow user'}
       >
         {isLoading ? (
-          <span className="follow-spinner"></span>
+          <span className="follow-spinner">Loading...</span>
         ) : isFollowing ? (
           'Following'
         ) : (
           'Follow'
         )}
       </button>
-      
-      {error && (
-        <p className="follow-error-message" role="alert">
-          {error}
-        </p>
-      )}
     </div>
   );
 }

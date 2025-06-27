@@ -11,7 +11,7 @@ function BookList() {
   useEffect(() => {
     const fetchBooks = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:5000/booklist', {
+        const response = await fetch('/booklist', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
