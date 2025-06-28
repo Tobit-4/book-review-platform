@@ -9,7 +9,7 @@ function AddToShelf({ bookId }) {
   useEffect(() => {
     const fetchShelves = async () => {
       try {
-        const res = await fetch('http://127.0.0.1:5000/shelves', {
+        const res = await fetch('https://backend-h5uy.onrender.com/shelves', {
           credentials: 'include',
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -50,7 +50,7 @@ function AddToShelf({ bookId }) {
 
     try {
       const response = await fetch(
-        `http://127.0.0.1:5000/shelves/${selectedShelfId}/books`,
+        `https://backend-h5uy.onrender.com/shelves/${selectedShelfId}/books`,
         {
           method: 'POST',
           credentials: 'include',

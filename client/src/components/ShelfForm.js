@@ -12,7 +12,7 @@ function ShelfForm({ onShelfCreated }) {
 
     try {
         console.log('Submitting shelf:', { name }); // Debug log
-      const res = await fetch('http://127.0.0.1:5000/shelves', {
+      const res = await fetch('https://backend-h5uy.onrender.com/shelves', {
         credentials: 'include',
         method: 'POST',
         headers: {

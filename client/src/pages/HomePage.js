@@ -7,7 +7,7 @@ function HomePage() {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        fetch('http://127.0.0.1:5000/booklist')
+        fetch('https://backend-h5uy.onrender.com/booklist')
             .then(r => {
                 if (!r.ok) {
                     throw new Error('Network response was not ok');

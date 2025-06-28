@@ -20,7 +20,7 @@ function LoginPage({ setUser }) {
     setIsSubmitting(true);
     
     try {
-      const res = await fetch("http://127.0.0.1:5000/login", {
+      const res = await fetch("https://backend-h5uy.onrender.com/login", {
         method: "POST",
         credentials: 'include',
         headers: { "Content-Type": "application/json" },

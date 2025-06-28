@@ -9,7 +9,7 @@ function TrendingBooks() {
   useEffect(() => {
     const fetchTrendingBooks = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:5000/books/trending',{
+        const response = await fetch('https://backend-h5uy.onrender.com/books/trending',{
             credentials: 'include'
         });
         if (!response.ok) throw new Error('Failed to fetch trending books');

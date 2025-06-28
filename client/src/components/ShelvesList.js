@@ -12,7 +12,7 @@ function ShelvesList({ user }) {
       const token = localStorage.getItem('token');
       if (!token) throw new Error('Authentication required');
 
-      const response = await fetch('http://127.0.0.1:5000/shelves?include_books=true', {
+      const response = await fetch('https://backend-h5uy.onrender.com/shelves?include_books=true', {
         credentials: 'include',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -55,7 +55,7 @@ function ShelvesList({ user }) {
     
     try {
       setDeletingId(shelfId);
-      const res = await fetch(`http://127.0.0.1:5000/shelves/${shelfId}`, {
+      const res = await fetch(`https://backend-h5uy.onrender.com/shelves/${shelfId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,

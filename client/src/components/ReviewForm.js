@@ -11,7 +11,7 @@ function ReviewForm({ bookId, onReviewSubmit }) {
     const token = localStorage.getItem('token')
 
     try {
-      const res = await fetch('http://127.0.0.1:5000/reviews', {
+      const res = await fetch('https://backend-h5uy.onrender.com/reviews', {
         credentials: 'include',
         method: 'POST',
         headers: {
