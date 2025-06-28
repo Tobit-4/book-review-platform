@@ -1,6 +1,7 @@
 # Standard library imports
 
 # Remote library imports
+from urllib.parse import urlparse
 from flask import Flask
 from flask_cors import CORS
 from flask_migrate import Migrate
@@ -17,7 +18,15 @@ import os
 app = Flask(__name__)
 CORS(app)
 api=Api(app)
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', '').replace('postgres://', 'postgresql://')
+def get_database_url():
+    db_url = os.environ.get('DATABASE_URL')
+    if db_url:
+        if db_url.startswith('postgres://'):
+            db_url = db_url.replace('postgres://', 'postgresql://', 1)
+        return db_url
+    return 'postgresql://bookuser:bookpass@localhost:5432/book_review_db'  # Fallback for local
+
+app.config['SQLALCHEMY_DATABASE_URI'] = get_database_url()
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = False
 app.json.compact = False
