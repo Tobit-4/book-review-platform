@@ -9,6 +9,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import MetaData
 from flask_jwt_extended import JWTManager
 from datetime import timedelta
+import os
 
 # Local imports
 
@@ -16,7 +17,7 @@ from datetime import timedelta
 app = Flask(__name__)
 CORS(app)
 api=Api(app)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://bookuser:bookpass@localhost:5432/book_review_db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', '').replace('postgres://', 'postgresql://')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = False
 app.json.compact = False
@@ -35,7 +36,7 @@ migrate = Migrate(app, db)
 db.init_app(app)
 migrate = Migrate(app, db)
 jwt = JWTManager(app)
-app.config["JWT_SECRET_KEY"] = "super-secret-key"
+app.config["JWT_SECRET_KEY"] = os.environ.get('JWT_SECRET_KEY', 'fallback-secret-for-dev-only')
 
 # Instantiate REST API
 

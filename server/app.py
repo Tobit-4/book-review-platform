@@ -9,7 +9,9 @@ from controllers import *
 CORS(app, 
      resources={
          r"/*": {
-             "origins": ["http://localhost:3000"],
+             "origins": ['https://frontend-vbai.onrender.com',
+                        "http://localhost:3000"
+                        ],
              "methods": ["GET", "POST", "PUT", "PATCH", "DELETE","OPTIONS"],
              "allow_headers": ["Content-Type", "Authorization"],
              "supports_credentials": True
