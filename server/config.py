@@ -17,16 +17,8 @@ import os
 app = Flask(__name__)
 CORS(app)
 api=Api(app)
-if os.environ.get('FLASK_ENV') == 'production':
-    # Render PostgreSQL configuration
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL').replace(
-        'postgres://', 
-        'postgresql://'
-    ) + "?sslmode=require"
-else:
-    # Local PostgreSQL configuration
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://bookuser:bookpass@localhost:5432/book_review_db'
-
+basedir = os.path.abspath(os.path.dirname(__file__))
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'app.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = False
 app.json.compact = False
