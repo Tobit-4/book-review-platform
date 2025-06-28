@@ -9,6 +9,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import MetaData
 from flask_jwt_extended import JWTManager
 from datetime import timedelta
+import os
 
 # Local imports
 
@@ -16,7 +17,8 @@ from datetime import timedelta
 app = Flask(__name__)
 CORS(app)
 api=Api(app)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://bookuser:xpQBmD6YwJT29rA7CrhAzO301aCKpOHQ@dpg-d1ftpdnfte5s73fvco4g-a/book_review_db_cuwe'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL').replace('postgres://', 'postgresql://') + "?sslmode=require"
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = False
 app.json.compact = False
