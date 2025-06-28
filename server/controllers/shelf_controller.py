@@ -128,5 +128,5 @@ class ShelfBooks(Resource):
         except Exception as e:
             db.session.rollback()
             import traceback
-            traceback.print_exc()  # 👈 this prints the full error to your terminal
-            return {'message': str(e)}, 500  # 👈 return the actual error for now (you can remove later)
+            traceback.print_exc() 
+            return {'message': str(e)}, 500  

@@ -52,7 +52,7 @@ class BookList(Resource):
 
             db.session.commit()
 
-            # Return serialized book with proper genre handling
+            
             return {
                 'id': book.id,
                 'title': book.title,
@@ -81,7 +81,7 @@ class BookDetail(Resource):
             if not book:
                 return {'error': 'Book not found'}, 404
 
-            # Safe manual dict (skip serializer until we debug that)
+           
             return {
                 'id': book.id,
                 'title': book.title,
